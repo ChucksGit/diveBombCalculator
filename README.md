@@ -11,3 +11,8 @@ If you run into trouble, help is available in [our forum](https://forum.defold.c
 Happy Defolding!
 
 ---
+
+Takes in two values:
+One for horizontal distance to target, a.
+The second for speed, total distance available to travel, b+c.
+Returns the highest possible vertical distance, b, as well as displaying relevant values used in the calculation and the remaining feet in speed.
