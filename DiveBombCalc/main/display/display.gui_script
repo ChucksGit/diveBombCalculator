@@ -1,0 +1,314 @@
+function set_up(node1, node2, node3, position1, position2, position3)
+	gui.set_position(node1, position1)
+	gui.set_position(node2, position2)
+	gui.set_position(node3, position3)
+end
+
+function set_up_num(nodes, positions)
+	for i in pairs(nodes) do
+		gui.set_position(nodes[i], positions[i])
+	end
+end
+
+function remove_set_up(node1, node1a, node2, node2a, node3, node3a, new_position)
+	gui.set_position(node1, new_position)
+	gui.set_color(node1a, vmath.vector4(0,0,1,1))
+	gui.set_visible(node2, false)
+	gui.set_visible(node2a, false)
+	gui.set_visible(node3, false)
+	gui.set_visible(node3a, false)
+end
+
+function assign_results(results, nodes)
+	for i in pairs(results) do
+		gui.set_text(nodes[i], results[i])
+	end
+end
+
+function reset(self)
+	msg.post("/display_factory", "reset")
+end
+
+function show_results(nodes, results, positions)
+	for i in pairs(results) do
+		gui.set_position(nodes[i], positions[i])
+		timer.delay(.4*i, false, function()
+			gui.set_visible(results[i], true)
+		end)
+	end
+	for i in pairs(nodes) do
+		timer.delay(.4*i, false, function()
+			gui.set_visible(nodes[i], true)
+			
+			-- activate child nodes at same time as parent nodes in table
+			if i == 3 then
+				gui.set_visible(nodes[i+4], true)
+				gui.set_visible(nodes[i+5], true)
+			end
+			if i == 4 then
+				gui.set_visible(nodes[i+5], true)
+			end
+		end)
+	end
+end
+
+function enable_num_pad(nodes)
+	for i in pairs(nodes) do
+		gui.set_enabled(nodes[i], true)
+	end
+end
+
+function disable_num_pad(nodes)
+	for i in pairs(nodes) do
+		gui.set_enabled(nodes[i], false)
+	end
+end
+
+
+
+
+
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+
+	self.show_results = hash("show_results")
+
+	self.inputs = {0, 0}
+	self.current_input = {"", ""}
+	self.pickable = true
+
+	local SCREEN_HEIGHT = 666
+	local SCREEN_WIDTH = 576
+	local CENTER = SCREEN_WIDTH/2
+	local X_ALIGNMENT = CENTER+10
+	local Y_ALIGNMENT_BASE = SCREEN_HEIGHT*.8
+	local NUM_Y_BASE = SCREEN_HEIGHT*.5
+	local NUM_LEFT_COLUMN = CENTER-80
+	local NUM_CENTER_COLUMN = CENTER
+	local NUM_RIGHT_COLUMN = CENTER+80
+	local NUM_TOP_ROW = NUM_Y_BASE
+	local NUM_SECOND_ROW = NUM_Y_BASE-80
+	local NUM_THIRD_ROW = NUM_Y_BASE-160
+	local NUM_BOTTOM_ROW = NUM_Y_BASE-240
+
+	self.node1 = gui.get_node("distance to target")
+	self.node1a = gui.get_node("distance_to_target_input")
+	self.node2 = gui.get_node("speed")
+	self.node2a = gui.get_node("speed input")
+	self.run_node = gui.get_node("run button")
+	self.run_text = gui.get_node("run")
+	self.reset_node = gui.get_node("reset button")
+	self.reset_text = gui.get_node("reset text")
+	local node3 = gui.get_node("dive distance")
+	local node3a = gui.get_node("dive distance result")
+	local node4 = gui.get_node("hypotenuse")
+	local node4a = gui.get_node("hypotenuse result")
+	local node5 = gui.get_node("a squared + b squared")
+	local node5a = gui.get_node("ab result")
+	local node5b = gui.get_node("a square sign")
+	local node5c = gui.get_node("b square sign")
+	local node6 = gui.get_node("c squared")
+	local node6a = gui.get_node("c result")
+	local node6b = gui.get_node("c square sign")
+	local node7 = gui.get_node("remaining speed")
+	local node7a = gui.get_node("remaining speed result")
+
+	self.num_node1 = gui.get_node("num node 1")
+	self.num_node2 = gui.get_node("num node 2")
+	self.num_node3 = gui.get_node("num node 3")
+	self.num_node4 = gui.get_node("num node 4")
+	self.num_node5 = gui.get_node("num node 5")
+	self.num_node6 = gui.get_node("num node 6")
+	self.num_node7 = gui.get_node("num node 7")
+	self.num_node8 = gui.get_node("num node 8")
+	self.num_node9 = gui.get_node("num node 9")
+	self.num_node0 = gui.get_node("num node 0")
+	self.num_enter_node = gui.get_node("num enter button")
+
+	self.num_text1 = gui.get_node("num text 1")
+	self.num_text2 = gui.get_node("num text 2")
+	self.num_text3 = gui.get_node("num text 3")
+	self.num_text4 = gui.get_node("num text 4")
+	self.num_text5 = gui.get_node("num text 5")
+	self.num_text6 = gui.get_node("num text 6")
+	self.num_text7 = gui.get_node("num text 7")
+	self.num_text8 = gui.get_node("num text 8")
+	self.num_text9 = gui.get_node("num text 9")
+	self.num_text0 = gui.get_node("num text 0")
+	self.num_enter_text = gui.get_node("num enter text")
+
+	local position1 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)+40, 1)
+	self.position2 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE), 1)
+	local position3 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-40, 1)
+	local position4 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-80, 1)
+	local position5 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-120, 1)
+	local position6 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-160, 1)
+	local position7 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-200, 1)
+	local position8 = vmath.vector3(X_ALIGNMENT, (Y_ALIGNMENT_BASE)-280, 1)
+
+	local num_position_1 = vmath.vector3(NUM_LEFT_COLUMN, NUM_TOP_ROW, 1)
+	local num_position_2 = vmath.vector3(NUM_CENTER_COLUMN, NUM_TOP_ROW, 1)
+	local num_position_3 = vmath.vector3(NUM_RIGHT_COLUMN, NUM_TOP_ROW, 1)
+	local num_position_4 = vmath.vector3(NUM_LEFT_COLUMN, NUM_SECOND_ROW, 1)
+	local num_position_5 = vmath.vector3(NUM_CENTER_COLUMN, NUM_SECOND_ROW, 1)
+	local num_position_6 = vmath.vector3(NUM_RIGHT_COLUMN, NUM_SECOND_ROW, 1)
+	local num_position_7 = vmath.vector3(NUM_LEFT_COLUMN, NUM_THIRD_ROW, 1)
+	local num_position_8 = vmath.vector3(NUM_CENTER_COLUMN, NUM_THIRD_ROW, 1)
+	local num_position_9 = vmath.vector3(NUM_RIGHT_COLUMN, NUM_THIRD_ROW, 1)
+	local num_position_0 = vmath.vector3(NUM_LEFT_COLUMN, NUM_BOTTOM_ROW, 1)
+	local num_enter_position = vmath.vector3(NUM_RIGHT_COLUMN-40, NUM_BOTTOM_ROW, 1)
+
+	self.label_nodes = {
+		node3,
+		node4,
+		node5,
+		node6,
+		node7,
+		self.reset_node,
+		node5b,
+		node5c,
+		node6b
+	}
+
+	self.result_nodes = {
+		node3a,
+		node4a,
+		node5a,
+		node6a,
+		node7a,
+		self.reset_text
+	}
+
+	self.result_positions = {
+		position3,
+		position4,
+		position5,
+		position6,
+		position7,
+		position8
+	}
+
+	self.num_nodes = {
+		self.num_node1,
+		self.num_node2,
+		self.num_node3,
+		self.num_node4,
+		self.num_node5,
+		self.num_node6,
+		self.num_node7,
+		self.num_node8,
+		self.num_node9,
+		self.num_node0,
+		self.num_enter_node
+	}
+
+	local num_text_nodes = {
+		self.num_text1,
+		self.num_text2,
+		self.num_text3,
+		self.num_text4,
+		self.num_text5,
+		self.num_text6,
+		self.num_text7,
+		self.num_text8,
+		self.num_text9,
+		self.num_text0,
+		self.num_enter_text
+	}
+
+	local num_positions = {
+		num_position_1,
+		num_position_2,
+		num_position_3,
+		num_position_4,
+		num_position_5,
+		num_position_6,
+		num_position_7,
+		num_position_8,
+		num_position_9,
+		num_position_0,
+		num_enter_position
+	}
+
+	set_up(self.node1, self.node2, self.run_node, position1, self.position2, position3)
+	set_up_num(self.num_nodes, num_positions)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == self.show_results then
+		assign_results(message, self.result_nodes)
+		show_results(self.label_nodes, self.result_nodes, self.result_positions)
+	end
+end
+
+function on_input(self, action_id, action)
+	if not action.pressed then
+		return
+	end
+
+	local x = action.x
+	local y = action.y
+
+	if self.pickable then
+		if gui.pick_node(self.node1a, x, y) then
+			enable_num_pad(self.num_nodes)
+			self.current_input[1] = self.node1a
+			self.pickable = false
+		elseif gui.pick_node(self.node2a, x, y) then
+			enable_num_pad(self.num_nodes)
+			self.current_input[1] = self.node2a
+			self.pickable = false
+		elseif gui.pick_node(self.run_node, x, y) then
+			self.pickable = false
+		self.inputs[1] = tonumber(gui.get_text(self.node1a))
+		self.inputs[2] = tonumber(gui.get_text(self.node2a))
+		if self.inputs[1] == nil then
+			self.inputs[1] = 0
+			gui.set_text(self.node1a, "0")
+		end
+		if self.inputs[2] == nil then
+			self.inputs[2] = 0
+		end
+		msg.post("/calculator", "calculate", self.inputs)
+		remove_set_up(self.node1, self.node1a, self.node2, self.node2a, self.run_node, self.run_text, self.position2)
+		end
+	end
+
+	if gui.pick_node(self.reset_node, x, y) then
+		reset(self)
+	end
+	
+	if not gui.is_enabled(self.num_nodes[1]) then
+		return
+	end
+	if gui.pick_node(self.num_node1, x, y) then
+		self.current_input[2] = self.current_input[2].."1"
+	elseif gui.pick_node(self.num_node2, x, y) then
+		self.current_input[2] = self.current_input[2].."2"
+	elseif gui.pick_node(self.num_node3, x, y) then
+		self.current_input[2] = self.current_input[2].."3"
+	elseif gui.pick_node(self.num_node4, x, y) then
+		self.current_input[2] = self.current_input[2].."4"
+	elseif gui.pick_node(self.num_node5, x, y) then
+		self.current_input[2] = self.current_input[2].."5"
+	elseif gui.pick_node(self.num_node6, x, y) then
+		self.current_input[2] = self.current_input[2].."6"
+	elseif gui.pick_node(self.num_node7, x, y) then
+		self.current_input[2] = self.current_input[2].."7"
+	elseif gui.pick_node(self.num_node8, x, y) then
+		self.current_input[2] = self.current_input[2].."8"
+	elseif gui.pick_node(self.num_node9, x, y) then
+		self.current_input[2] = self.current_input[2].."9"
+	elseif gui.pick_node(self.num_node0, x, y) then
+		self.current_input[2] = self.current_input[2].."0"
+	end
+	gui.set_text(self.current_input[1], self.current_input[2])
+
+	if gui.pick_node(self.num_enter_node, x, y) then
+		disable_num_pad(self.num_nodes)
+		self.current_input = {"", ""}
+		self.pickable = true
+	end
+	
+end

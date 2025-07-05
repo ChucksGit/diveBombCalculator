@@ -1,0 +1,69 @@
+function pythagorean(a, b)
+	return (a*a) + (b*b)
+end
+
+function calculate(distance_to_target, speed)
+	local a = distance_to_target
+	local b = 10
+	local a_squared_plus_b_squared = 0
+	local c = speed-10
+	local remaining_speed = 0
+	local c_squared = 0
+	local results = {0, 0, 0, 0, 0}
+	local is_c_squared_larger = true
+
+	while is_c_squared_larger do
+
+		a_squared_plus_b_squared = pythagorean(a, b)
+		c_squared = c*c 
+		remaining_speed = c- math.ceil(math.sqrt(a_squared_plus_b_squared))
+		--print(remaining_speed)
+
+		--[[print("max fall distance set to "..results[1].."\n".."\n",
+		"distance to target(a) =  "..a.."\n",
+		"vertical(b) = "..b.."\n",
+		"hypotenuse(c) = "..c.."\n",
+		"c squared = "..c_squared.."\n",
+		"a squared + b squared = "..a_squared_plus_b_squared)
+		]]--
+			if a_squared_plus_b_squared > c_squared then
+			--print("cannot dive")
+			return results
+		end
+
+		results[1], results[2], results[3], results[4], results[5] = 
+			b, c, a_squared_plus_b_squared, c_squared, remaining_speed
+		--print("can dive")
+		b = b+10
+		c = c-10
+	end
+end
+
+function run_calculate(display, distance_to_target, speed)
+	local results = {0, 0, 0, 0, 0}
+
+	print(speed ~= 0)
+	if speed ~= 0 then
+		print("calculate")
+		results = calculate(distance_to_target, speed)
+	end
+	--print("max fall = "..results[1])
+	msg.post(display, "show_results", results)
+end
+
+function init(self)
+	self.calculate = hash("calculate")
+	self.update_id = hash("update_id")
+
+	self.display_id = "/display"
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == self.calculate then
+		pprint(message)
+		run_calculate(self.display_id, message[1], message[2])
+	elseif message_id == self.update_id then
+		self.display_id = message[1]
+		--print(self.display_id)
+	end
+end

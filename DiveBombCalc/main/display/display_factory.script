@@ -1,0 +1,14 @@
+function init(self)
+	self.reset = hash("reset")
+	self.display_id = "/display"
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == self.reset then
+		go.delete(self.display_id)
+		timer.delay(.2, false, function()
+			self.display_id = factory.create("#display_factory")
+			msg.post("/calculator", "update_id", {self.display_id})
+		end)
+	end
+end

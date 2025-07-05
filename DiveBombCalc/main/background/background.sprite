@@ -1,0 +1,4 @@
+tile_set: "/main/assets/images.atlas"
+default_animation: "beige_border"
+material: "/builtins/materials/sprite.material"
+blend_mode: BLEND_MODE_ALPHA
